@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena pokemon</title>
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <h1 class="painel">Cadastre seu pokemon</h1>
+    <form method="get" id="form-pokemon" class="area">
+
+    <div class="label"><label for="treinador">Qual o nome do treinador</label>
+    <input type="text" id="treinador">
+    </div>
+
+    <div class="label"><label for="pokenome">Qual o nome do pokemon</label>
+    <input type="text" placeholder="Ex. Pikachu" id="nome">
+    </div>
+
+    <div class="label"><label for="tipo">Qual o tipo do pokemon</label>
+    <input type="text" placeholder="Ex. Elétrico" id="tipo">
+    </div>
+
+    <div class="label"><label for="cp">Qual a força do pokemon</label>
+    <input type="text" id="cp">
+    </div>
+
+    <button id="btn">Cadastrar</button>
+    <button>Resetar</button>
+    </form>
+
+    <div id="feedback"></div>
+
+    <div id="lista-card"></div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
