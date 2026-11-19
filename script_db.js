@@ -2,7 +2,8 @@
 
     const DATABASE_URL = process.env.DATABASE_URL
     const host = new URL(DATABASE_URL).hostname
-    const neonHttpEndPoint = `http://${host}/sql`
+    //const neonHttpEndPoint = `http://${host}/sql`
+    const neonHttpEndPoint = `https://${host}/sql`
 
     const LIMITE_BARALHO = 12 // CARTAS
 
@@ -64,11 +65,10 @@ async function contarBaralho() {
     if (!linhas || linhas.length === 0) return 0
     return linhas[0].total
 }
-
-// deletar pokémon do baralho
-async function deletarPokemonBaralho(idPokemon) {
-    return await executarQueryNeon(
-        'DELETE FROM baralho WHERE id_pokemon = $1 RETURNING *',
-        [idPokemon]
-    )
+module.exports = {
+    LIMITE_BARALHO,
+    cadastrarPokemonBaralho,
+    listarBaralho,
+    contarBaralho,
+    deletarPokemonBaralho
 }

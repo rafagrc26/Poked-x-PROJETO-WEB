@@ -23,6 +23,33 @@ const feedback = document.querySelector('#feedback')
 const listaCards = document.querySelector('#lista-card'); // Ajustado para corresponder ao HTML
 
 const pokemonsCadastrados =[]
+const API = '/api/baralho'
+
+async function carregarBaralho() {
+    try {
+        const r = await fetch(API)
+        if (!r.ok) throw new Error('falha ao listar')
+        const linhas = await r.json()
+
+        // mapeia o schema do banco -> formato que o card espera
+        pokemonsCadastrados.length = 0
+        linhas.forEach(l => {
+            pokemonsCadastrados.push({
+                id:        l.id_pokemon,
+                nome:      l.nome,
+                imagem:    l.imagem,
+                tipo:      [l.tipo1, l.tipo2].filter(Boolean),
+                cp:        l.cp,
+                treinador: l.treinador
+            })
+        })
+        rederizarArena()
+    } catch (e) {
+        console.log(e)
+        feedback.textContent = '❌ Não foi possível carregar o baralho.'
+        feedback.style.color = 'red'
+    }
+} // ajuda da IA
 
 console.log('script')
 
@@ -83,7 +110,7 @@ function extrairCombatPower(dadosPokemon) {
         console.log("Dados vazios")
         return null
     }
-    return xp = dadosPokemon.base_experience
+    return dadosPokemon.base_experience  //return xp = dadosPokemon.base_experience
 }
 
 function verificaAntes(id)
@@ -142,26 +169,46 @@ function criarCardPokemon(id, nome, imagem, tipo, combatPower, treinador, campea
     btnRemover.textContent ='x'
     btnRemover.title = 'remover'
     btnRemover.setAttribute('aria-label',`Remover${nome}`)
-    btnRemover.dataset.nome = nome 
+    btnRemover.dataset.id = id //btnRemover.dataset.nome = nome 
     card.append(btnRemover, img, nomeCard, infoTipo, cp, treinadorName)
     
     //exercicio 2
     aplicarEstiloPorTipo(card, tipo)
-    if(campeao) card.classList.add('campeao')
+    if(campeao) card.classList.add('card-pokemon-campeao') //if(campeao) card.classList.add('campeao')
     listaCards.appendChild(card)
 
     console.log(card, img, nomeCard)
 }
 
  // exercicio 3c- Botão para apagar o card
-listaCards.addEventListener('click', function(event){
-const botao = event.target.closest('.btn-remover')
-if(!botao) return
-const indice =pokemonsCadastrados.findIndex(p =>p.id ===Number(botao.dataset.id))
-if(indice !== -1 ) pokemonsCadastrados.splice(indice,1)
-    rederizarArena()
-    
-})
+    //listaCards.addEventListener('click', function(event){
+    //const botao = event.target.closest('.btn-remover')
+    //if(!botao) return
+    //const indice =pokemonsCadastrados.findIndex(p =>p.id ===Number(botao.dataset.id))
+    //if(indice !== -1 ) pokemonsCadastrados.splice(indice,1)
+    //rederizarArena()  
+    //})
+    listaCards.addEventListener('click', async function(event){
+    const botao = event.target.closest('.btn-remover')
+    if(!botao) return
+
+    const id = Number(botao.dataset.id)
+    try {
+        const r = await fetch(`${API}/${id}`, { method: 'DELETE' })
+        if (!r.ok) {
+            feedback.textContent = '❌ Não foi possível remover.'
+            feedback.style.color = 'red'
+            return
+        }
+        await carregarBaralho()
+        feedback.textContent = '🗑️ Pokemon removido.'
+        feedback.style.color = '#a5b4fc'
+    } catch (e) {
+        console.log(e)
+        feedback.textContent = '❌ Erro de conexão com o servidor.'
+        feedback.style.color = 'red'
+    }
+}) // ajuda IA
 
 
 
@@ -205,6 +252,8 @@ function aplicarEstiloPorTipo(card, tipo) {
 
 
         console.log(cor_1, cor_2)
+
+        if (cor_1 == null) return
 
         if (cor_2 != null) {
             card.style.background = `linear-gradient(135deg, ${estiloCard[cor_1].borda} 50%, ${estiloCard[cor_2].borda} 50%)`
@@ -258,11 +307,41 @@ function aplicarEstiloPorTipo(card, tipo) {
                     }
 
                 //criarCardPokemon(id, nome, imagemURL, tipoPokemon, combatPower, treinador); depreciada 28/10
-                pokemonsCadastrados.push({id, nome, imagem:imagemURL,tipo:tipoPokemon,cp:combatPower, treinador})   
-                
-                rederizarArena() // função nova
-                feedback.textContent = "✅ Pokemon cadastrado com sucesso."
-                feedback.style.color = 'green'
+                    // pokemonsCadastrados.push({id, nome, imagem:imagemURL,tipo:tipoPokemon,cp:cp, treinador})   
+                    // rederizarArena() // função nova
+                    // feedback.textContent = "✅ Pokemon cadastrado com sucesso."
+                    // feedback.style.color = 'green'
+            try {
+                const resposta = await fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                id,
+                nome,
+                imagem: imagemURL,
+                cp: cp,
+                treinador: treinador,
+                tipo1: tipoPokemon?.[0] || null,
+                tipo2: tipoPokemon?.[1] || null
+            })
+        })
+
+    if (!resposta.ok) {
+        const erro = await resposta.json().catch(() => ({}))
+        feedback.textContent = `❌ ${erro.erro || 'Erro ao salvar.'}`
+        feedback.style.color = 'red'
+        return
+    }
+
+    await carregarBaralho()      // recarrega do banco
+    limparCampos()
+    feedback.textContent = "✅ Pokemon cadastrado com sucesso."
+    feedback.style.color = 'green'
+} catch (e) {
+    console.log(e)
+    feedback.textContent = '❌ Erro de conexão com o servidor.'
+    feedback.style.color = 'red'
+}
                 
             }
 
@@ -339,6 +418,4 @@ function aplicarEstiloPorTipo(card, tipo) {
         }
     );
 
-   
-
-   
+    carregarBaralho()
