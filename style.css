@@ -140,7 +140,23 @@ button {
     overflow-wrap: anywhere;
 
     transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
 }
+.card-pokemon-campeao{
+    outline: 3px solid #f5c518;
+    outline-offset: 2px;
+    box-shadow: 0,0,18px,4px rgba(245, 197, 25, 0.65);
+    animation: brilho-campeao 1.8s ease-in-out infinite alternate;
+}
+
+@keyframer brilho-campeao {
+    from {box-shadow: 0, 0, 18px 2px rgba(245, 195, 24, 0.8);}
+    to {box-shadow: 0, 0, 18px 2px rgba(245, 195, 24, 0.8);}
+}
+@media ( prefers-reduced-motion: reduce) {
+    .card-pokemon-campeao(animation: none;)
+}
+
 
 .card-pokemon:hover {
     transform: translateY(-5px);
@@ -191,4 +207,35 @@ button {
         width: 120px;
         height: 120px;
     }
+}
+
+
+.btn-remover{
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    color: gray;
+    font-size: 1.1;
+    line-height: 1;
+    opacity: 0.45;
+    cursor: pointer;
+    transition: opacity 0.15s, background-color 0.15s;
+}
+
+.btn-remover:hover,
+.btn-remover:focus-visible{
+    opacity: 1;
+    background: #f1f5f9;
+}
+
+.btn-remover:focus-visible{
+    outline: 2 solid currentColor;
+    outline-offset: 1px;
 }
